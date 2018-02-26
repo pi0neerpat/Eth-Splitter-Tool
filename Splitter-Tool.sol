@@ -10,54 +10,42 @@ pragma solidity ^0.4.6;
 
 contract Splitter {
     //address public recipientAddress;
-    address public owner = 0xBa50B75DBb02Bd9A2F07905de4DBb076480A7d1e;
+    address public owner = msg.sender;
     address[] public recipientAddress;
-    address public recipientAddress2;
-    address public recipientAddress3;
-    address public recipientAddress4;
     uint public numberRecipients;
     
-    function changeOwner(address _newOwner)  {
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+    
+    function changeOwner(address _newOwner) onlyOwner {
         owner = _newOwner;
     }
-    
-     function safeDiv(uint a, uint b) pure internal returns (uint) {
-        uint c = a / b;
-        require(a == 0 || c * b == a);
-        return c;
-     }
-    
-    function setNumberRecipients(uint num) returns (bool) {
-        numberRecipients = num;
-        return (true);
-    }
-    
-    /// param a1 through a4 must cannot be null.
-    function setRecipients(
-        address[] a
-    ) 
-        returns (bool)
-    {
+
+    // Set the recipients array to any length
+    function setRecipients(address[] a) onlyOwner returns (bool){
         recipientAddress = a;
         numberRecipients = recipientAddress.length;
         return true;
     }
 
-    // Check that *some ETH is sent, determines the evenly split amount,
-    // and distributes funds accordingly.
-     function distributeFunds() payable returns (bool) {
+    // Check that some ETH is sent. Use the number of recipients to
+    // calculate the evenly split amount, and distribute funds.
+    function distributeFunds() payable onlyOwner returns (bool) {
         assert(msg.value > 0); 
-        uint splitAmount = safeDiv(msg.value, 4);
+        uint splitAmount = msg.value / numberRecipients;
         for (uint8 y = 0; y < numberRecipients; y++) {
             recipientAddress[y].transfer(splitAmount);
         }
-        // Return remaining funds to sender
+        // Return any funds sent to fallback function
         msg.sender.transfer(this.balance);
         return true;
     }
     
-    // Fallback function which allows payment to the contract
-    function() public payable  {  }
+    // Fallback function allows payment to the contract
+    // without distributing funds. Unsure if necessary...
+    function() private payable onlyOwner { }
     
     // View-only function to check recipientAddresses    
     function viewRecipients() view returns (address[]) {
@@ -65,12 +53,12 @@ contract Splitter {
     }
 
     // Resets balance to the desired value, and performs validation check
-    function reset()  {
+    function reset() onlyOwner {
         owner.transfer(this.balance);
         delete recipientAddress;
     }
     
-    function kill()  {
+    function kill() onlyOwner {
         selfdestruct(owner);  // kills this contract and sends remaining funds back to creator
     }
 
