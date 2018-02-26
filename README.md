@@ -1,12 +1,12 @@
-This contract is designed to equally divide and distribute funds to any number of addresses.  Only two calls are needed to perform the action: 1. setRecipients() and 2. distributeFunds(). distributeFunds() can be used repeatedly, since the list of recipients is not change until setRecipients() is called again.
-
-WRITE-permissions are limited to the contract owner (address who initially deployed the contract).  Anyone can see the list of addresses once they are set. Ownership is transferrable.
-
-Note: In case of error, reset() can be called to return all funds to the owner.
+This contract is designed to equally divide and distribute funds to any number of addresses.  
 
 ![alt text](https://github.com/blockchainbuddha/Eth-Splitter-Tool/blob/master/Images/description.png)
 
+WRITE-permissions are limited to the contract owner (address who initially deployed the contract).  Anyone can see the list of addresses once they are set. Ownership is transferrable. In case of error, reset() can be called to return all funds to the owner
+
 ![alt text](https://github.com/blockchainbuddha/Eth-Splitter-Tool/blob/master/Images/example.png)
+
+Only two calls are needed to perform the action: 
 
 ### 1. Set the Recipients
 
