@@ -9,48 +9,49 @@ pragma solidity ^0.4.6;
 ///  to the owner.
 
 contract Splitter {
-    address public recipientAddress;
+    //address public recipientAddress;
     address public owner = 0xBa50B75DBb02Bd9A2F07905de4DBb076480A7d1e;
+    address[] public recipientAddress;
+    address public recipientAddress2;
+    address public recipientAddress3;
+    address public recipientAddress4;
+    uint public numberRecipients;
     
     function changeOwner(address _newOwner)  {
         owner = _newOwner;
     }
     
      function safeDiv(uint a, uint b) pure internal returns (uint) {
-          uint c = a / b;
-          require(a == 0 || c * b == a);
-          return c;
+        uint c = a / b;
+        require(a == 0 || c * b == a);
+        return c;
      }
     
-    /// @param a1 through a4 must cannot be null.
+    function setNumberRecipients(uint num) returns (bool) {
+        numberRecipients = num;
+        return (true);
+    }
+    
+    /// param a1 through a4 must cannot be null.
     function setRecipients(
-        address a1
-        //address a2,
-        //address a3,
-        //address a4
+        address[] a
     ) 
         returns (bool)
     {
-        //assert(a1 != 0);
-        //assert(a2 != 0);
-        //assert(a3 != 0);
-        //assert(a4 != 0);
-        
-        recipientAddress = a1;
-        //recipientAddress[1] = a2;
-        //recipientAddress[2] = a3;
-        //recipientAddress[3] = a4;
-    return true;
+        recipientAddress = a;
+        numberRecipients = recipientAddress.length;
+        return true;
     }
 
     // Check that *some ETH is sent, determines the evenly split amount,
-    // and distributes funds accordingly. Remaining funds are returned
+    // and distributes funds accordingly.
      function distributeFunds() payable returns (bool) {
         assert(msg.value > 0); 
         uint splitAmount = safeDiv(msg.value, 4);
-        // (uint8 y = 0; y < 4; y++) {
-        recipientAddress.transfer(splitAmount);
-        //}
+        for (uint8 y = 0; y < numberRecipients; y++) {
+            recipientAddress[y].transfer(splitAmount);
+        }
+        // Return remaining funds to sender
         msg.sender.transfer(this.balance);
         return true;
     }
@@ -59,8 +60,8 @@ contract Splitter {
     function() public payable  {  }
     
     // View-only function to check recipientAddresses    
-    function viewRecipients() view returns (address) {
-        return recipientAddress;  
+    function viewRecipients() view returns (address[]) {
+        return (recipientAddress);  
     }
 
     // Resets balance to the desired value, and performs validation check
